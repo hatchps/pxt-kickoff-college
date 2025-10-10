@@ -369,7 +369,7 @@ namespace football {
                 text.util.showInstruction("GAME OVER!")
             });
 
-            text.util.introInstruction(`Move with arrows and   throw with A! ${isHardware ? "Press A" : "Click on the screen"} to start.`);
+            text.util.introInstruction(`Move with arrows and throw with A! Press A to start.`);
             currentGame.startPlay();
         } else {
             game.splash("You need to set teams first!");
