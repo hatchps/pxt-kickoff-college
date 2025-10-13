@@ -371,107 +371,83 @@ namespace football {
 
             text.util.introInstruction(`Move with arrows and throw with A! Press A to start.`);
             currentGame.startPlay();
-            // Paste this into MakeCode (JavaScript / Arcade).
-// It parses an RTTTL string and plays the melody with music.playTone().
-// RTTTL used: Final Countdown:o=5,d=16,b=125
+            const RTTTL = "Final Countdown:o=5,d=16,b=125,b=125:b,a,4b,4e,4p,8p,c6,b,8c6,8b,4a,4p,8p,c6,b,4c6,4e,4p,8p,a,g,8a,8g,8f#,8a,4g.,f#,g,4a.,g,a,8b,8a,8g,8f#,4e,4c6,2b.,b,c6,b,a,1b";
 
-function noteNameToSemitone(n: string) {
-    // map note names (lowercase) to semitone within octave (C=0 ... B=11)
-    const m: any = { "c":0, "c#":1, "d":2, "d#":3, "e":4, "f":5, "f#":6, "g":7, "g#":8, "a":9, "a#":10, "b":11 };
-    return m[n];
-}
+const NOTE: any = { c:0,"c#":1,d:2,"d#":3,e:4,f:5,"f#":6,g:7,"g#":8,a:9,"a#":10,b:11 };
 
-function playRTTTL(rtttl: string) {
-    // split: name:defaults:notes
-    const parts = rtttl.split(":");
-    if (parts.length < 3) return;
-    const defaultsPart = parts[1];
-    const notesPart = parts.slice(2).join(":"); // in case colon appears in notes
+function playRTTTL(r: string) {
+    const parts = r.split(":");
+    const defs: any = { o:5, d:4, b:63 }; // <-- declare as any
 
-    // parse defaults (o=5,d=16,b=125 etc.)
-    let defaults: any = { o: 5, d: 4, b: 63 }; // safe defaults
-    defaultsPart.split(",").forEach(pair => {
-        const kv = pair.split("=");
-        if (kv.length == 2) defaults[kv[0].trim()] = parseInt(kv[1].trim());
-    });
-
-    const bpm = defaults["b"];
-    const defaultOct = defaults["o"];
-    const defaultDur = defaults["d"];
-
-    // whole note length in ms: whole = 4 * 60 / bpm seconds
-    const wholeMs = 4 * 60 * 1000 / bpm;
-
-    // split notes by comma and parse each
-    const rawNotes = notesPart.split(",");
-    const melody: {freq:number, dur:number}[] = [];
-
-    for (let raw of rawNotes) {
-        raw = raw.trim();
-        if (!raw) continue;
-
-        // parse leading duration digits (optional)
-        let i = 0;
-        let durDigits = "";
-        while (i < raw.length && raw[i] >= '0' && raw[i] <= '9') { durDigits += raw[i]; i++; }
-        const durVal = durDigits ? parseInt(durDigits) : defaultDur;
-
-        // next char should be note letter or 'p'
-        if (i >= raw.length) continue;
-        let noteChar = raw[i].toLowerCase();
-        i++;
-
-        // optional sharp #
-        let sharp = "";
-        if (i < raw.length && raw[i] === '#') { sharp = "#"; i++; }
-
-        // optional octave digit
-        let octave = defaultOct;
-        if (i < raw.length && raw[i] >= '0' && raw[i] <= '9') {
-            octave = parseInt(raw[i]); i++;
-        }
-
-        // optional dot for dotted note
-        let dotted = false;
-        if (i < raw.length && raw[i] === '.') { dotted = true; i++; }
-
-        // compute duration in ms
-        let noteMs = wholeMs / durVal;
-        if (dotted) noteMs = noteMs * 1.5;
-
-        if (noteChar === 'p') {
-            // rest
-            melody.push({ freq: 0, dur: Math.round(noteMs) });
-        } else {
-            const noteKey = noteChar + (sharp ? "#" : "");
-            const semitone = noteNameToSemitone(noteKey);
-            // MIDI-like calculation:
-            // midiNumber = (octave + 1) * 12 + semitone
-            const midi = (octave + 1) * 12 + semitone;
-            const n = midi - 69; // semitone diff from A4 (MIDI 69)
-            const freq = 440 * Math.pow(2, n / 12);
-            melody.push({ freq: Math.round(freq), dur: Math.round(noteMs) });
+    if (parts.length > 1) {
+        const defParts = parts[1].split(",");
+        for (let i = 0; i < defParts.length; i++) {
+            const kv = defParts[i].split("=");
+            if (kv.length == 2) defs[kv[0].trim()] = parseInt(kv[1].trim());
         }
     }
 
-    // play the melody: use music.playTone for notes, pause for rests.
-    for (let i = 0; i < melody.length; ++i) {
-        const item = melody[i];
-        if (item.freq === 0) {
-            pause(item.dur);
-        } else {
-            music.playTone(item.freq, item.dur);
+    const whole = 4 * 60 * 1000 / defs.b; // whole note in ms
+    const tokens = parts.slice(2).join(":").split(",");
+
+    for (let t = 0; t < tokens.length; t++) {
+        let tok = tokens[t].trim();
+        if (tok.length == 0) continue;
+
+        // --- manual parse ---
+        let idx = 0;
+        let durStr = "";
+        while (idx < tok.length && tok.charAt(idx) >= '0' && tok.charAt(idx) <= '9') {
+            durStr += tok.charAt(idx);
+            idx++;
         }
-        // tiny gap between notes so notes don't bleed together
+        const durDiv = durStr ? parseInt(durStr) : defs.d;
+        let ms = whole / durDiv;
+
+        // note letter
+        if (idx >= tok.length) continue;
+        let letter = tok.charAt(idx).toLowerCase();
+        idx++;
+
+        // optional sharp
+        let sharp = "";
+        if (idx < tok.length && tok.charAt(idx) == "#") {
+            sharp = "#";
+            idx++;
+        }
+
+        // optional octave
+        let octave = defs.o;
+        if (idx < tok.length && tok.charAt(idx) >= '0' && tok.charAt(idx) <= '9') {
+            octave = parseInt(tok.charAt(idx));
+            idx++;
+        }
+
+        // optional dot
+        let dotted = false;
+        if (idx < tok.length && tok.charAt(idx) == ".") {
+            dotted = true;
+            idx++;
+        }
+        if (dotted) ms *= 1.5;
+
+        if (letter == "p") {
+            pause(Math.round(ms));
+            continue;
+        }
+
+        const key = letter + sharp;
+        if (NOTE[key] === undefined) continue;
+        const semitone = NOTE[key];
+        const midi = (octave + 1) * 12 + semitone;
+        const freq = 440 * Math.pow(2, (midi - 69)/12);
+
+        music.playTone(Math.round(freq), Math.round(ms));
         pause(20);
     }
 }
 
-// The RTTTL you gave:
-const rtttlStr = "Final Countdown:o=5,d=16,b=125,b=125:b,a,4b,4e,4p,8p,c6,b,8c6,8b,4a,4p,8p,c6,b,4c6,4e,4p,8p,a,g,8a,8g,8f#,8a,4g.,f#,g,4a.,g,a,8b,8a,8g,8f#,4e,4c6,2b.,b,c6,b,a,1b";
-
-// Call the player (for example from on start or a button event)
-playRTTTL(rtttlStr);
+playRTTTL(RTTTL);
 
             } else {
             game.splash("You need to set teams first!");
