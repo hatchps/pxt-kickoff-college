@@ -371,6 +371,8 @@ namespace football {
 
             text.util.introInstruction(`Move with arrows and throw with A! Press A to start.`);
             currentGame.startPlay();
+            music.play(music.stringPlayable(music.convertRTTTLToMelody("Final Countdown:o=5,d=16,b=125,b=125:b,a,4b,4e,4p,8p,c6,b,8c6,8b,4a,4p,8p,c6,b,4c6,4e,4p,8p,a,g,8a,8g,8f#,8a,4g.,f#,g,4a.,g,a,8b,8a,8g,8f#,4e,4c6,2b.,b,c6,b,a,1b"), 210), music.PlaybackMode.UntilDone)
+
         } else {
             game.splash("You need to set teams first!");
         }
