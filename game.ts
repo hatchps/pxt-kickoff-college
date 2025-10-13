@@ -370,15 +370,13 @@ namespace football {
             });
 
             text.util.introInstruction(`Move with arrows and throw with A! Press A to start.`);
-            currentGame.startPlay();
-            const RTTTL = "Final Countdown:o=5,d=16,b=125,b=125:b,a,4b,4e,4p,8p,c6,b,8c6,8b,4a,4p,8p,c6,b,4c6,4e,4p,8p,a,g,8a,8g,8f#,8a,4g.,f#,g,4a.,g,a,8b,8a,8g,8f#,4e,4c6,2b.,b,c6,b,a,1b";
+            const RTTTL = "Final Countdown Trimmed:o=5,d=16,b=125:b,a,4b,4e,4p,8p,c6,b,8c6,8b,4a,4p,8p,c6,b,4c6,4e,4p,8p,a,g,8a,8g,8f#,8a,4g.";
 
-const NOTE: any = { c:0,"c#":1,d:2,"d#":3,e:4,f:5,"f#":6,g:7,"g#":8,a:9,"a#":10,b:11 };
+const NOTE: any = { c: 0, "c#": 1, d: 2, "d#": 3, e: 4, f: 5, "f#": 6, g: 7, "g#": 8, a: 9, "a#": 10, b: 11 };
 
 function playRTTTL(r: string) {
     const parts = r.split(":");
-    const defs: any = { o:5, d:4, b:63 }; // <-- declare as any
-
+    const defs: any = { o: 5, d: 4, b: 63 };
     if (parts.length > 1) {
         const defParts = parts[1].split(",");
         for (let i = 0; i < defParts.length; i++) {
@@ -387,14 +385,13 @@ function playRTTTL(r: string) {
         }
     }
 
-    const whole = 4 * 60 * 1000 / defs.b; // whole note in ms
+    const whole = 4 * 60 * 1000 / defs.b;
     const tokens = parts.slice(2).join(":").split(",");
 
     for (let t = 0; t < tokens.length; t++) {
         let tok = tokens[t].trim();
         if (tok.length == 0) continue;
 
-        // --- manual parse ---
         let idx = 0;
         let durStr = "";
         while (idx < tok.length && tok.charAt(idx) >= '0' && tok.charAt(idx) <= '9') {
@@ -404,43 +401,30 @@ function playRTTTL(r: string) {
         const durDiv = durStr ? parseInt(durStr) : defs.d;
         let ms = whole / durDiv;
 
-        // note letter
         if (idx >= tok.length) continue;
         let letter = tok.charAt(idx).toLowerCase();
         idx++;
 
-        // optional sharp
         let sharp = "";
-        if (idx < tok.length && tok.charAt(idx) == "#") {
-            sharp = "#";
-            idx++;
-        }
+        if (idx < tok.length && tok.charAt(idx) == "#") { sharp = "#"; idx++; }
 
-        // optional octave
         let octave = defs.o;
         if (idx < tok.length && tok.charAt(idx) >= '0' && tok.charAt(idx) <= '9') {
             octave = parseInt(tok.charAt(idx));
             idx++;
         }
 
-        // optional dot
         let dotted = false;
-        if (idx < tok.length && tok.charAt(idx) == ".") {
-            dotted = true;
-            idx++;
-        }
+        if (idx < tok.length && tok.charAt(idx) == ".") { dotted = true; idx++; }
         if (dotted) ms *= 1.5;
 
-        if (letter == "p") {
-            pause(Math.round(ms));
-            continue;
-        }
+        if (letter == "p") { pause(Math.round(ms)); continue; }
 
         const key = letter + sharp;
         if (NOTE[key] === undefined) continue;
         const semitone = NOTE[key];
         const midi = (octave + 1) * 12 + semitone;
-        const freq = 440 * Math.pow(2, (midi - 69)/12);
+        const freq = 440 * Math.pow(2, (midi - 69) / 12);
 
         music.playTone(Math.round(freq), Math.round(ms));
         pause(20);
@@ -449,6 +433,7 @@ function playRTTTL(r: string) {
 
 playRTTTL(RTTTL);
 
+            currentGame.startPlay();
             } else {
             game.splash("You need to set teams first!");
         }
