@@ -45,4 +45,9 @@ namespace league {
     //% fixedInstance whenUsed block="Wyoming Cowboys"
     export const wyomingcowboys = new TeamData("Wyoming Cowboys", "WU", 0xffc425, 0x492f24);
 
+    //% fixedInstance whenUsed block="Texas Tech Red Raiders"
+    export const texastechredraiders = new TeamData("Texas Tech Red Raiders", "TTU", 0xE90802, 0x000000
+
+);
+
 }
