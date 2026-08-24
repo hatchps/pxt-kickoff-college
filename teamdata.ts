@@ -47,12 +47,16 @@ namespace league {
 
     //% fixedInstance whenUsed block="Texas Tech Red Raiders"
     export const texastechredraiders = new TeamData("Texas Tech Red Raiders", "TTU", 0xE90802, 0x000000
+   
     //% fixedInstance whenUsed block="Alabama Chrimson Tide"
     export const alabamachrimsontide = new TeamData("Alabama Chrimson Tide", "ALA", 0x9e1b32, 0xffffff
+    
     //% fixedInstance whenUsed block="Texas A&M Aggies"
     export const texasamaggies = new TeamData("Texas A&M Aggies", "A&M", 0x500000, 0xffffff
+    
     //% fixedInstance whenUsed block="Oregon Ducks"
     export const oregonducks = new TeamData("Oregon Ducks", "ORE", 0x154733, 0xFEE123
+    
     //% fixedInstance whenUsed block="LSU Tigers"
     export const lsutigers = new TeamData("LSU Tigers", "LSU", 0x461D7C, 0xFDD023
                                                     
